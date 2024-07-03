@@ -30,19 +30,19 @@ class User:
         self.first_name = first_name
         self.last_name = last_name
         self.password = password
-        self.balance = balance
+        self.__balance = balance
         self.transaction_list = {}
 
     def check_balance(self) -> float:
-        return self.balance
+        return self.__balance
 
     def add_balance(self, amount: float):
-        self.balance += amount
-        return self.balance
+        self.__balance += amount
+        return self.__balance
 
     def deduct_balance(self, amount: float) -> bool:
-        if amount <= self.balance:
-            self.balance -= amount
+        if amount <= self.__balance:
+            self.__balance -= amount
             return True
         return False
 
