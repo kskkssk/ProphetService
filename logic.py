@@ -1,14 +1,15 @@
 from typing import List, Dict
-import joblib
 import pandas as pd
 from datetime import datetime
 from prophet import Prophet
+import joblib
+import hashlib
 
 
 class Request:
     def __init__(self, data, model):
         self.data = data
-        self.model = model
+        self._model = model
 
     def validate(self):
         try:
@@ -19,56 +20,120 @@ class Request:
 
     def prediction(self):
         date = self.validate()
-        future = pd.DataFrame({'ds': [date]})
-        prediction = self.model.predict(future)
+        future = pd.DataFrame({'ds': pd.date_range(start=date, periods=30)})
+        prediction = self._model.predict(future)
         return prediction, self.data
 
 
-class User:
-    def __init__(self, username: str, first_name: str, last_name: str, balance: float, password: str):
-        self.username = username
-        self.first_name = first_name
-        self.last_name = last_name
-        self.password = password
-        self.balance = balance
-        self.transaction_list = {}
+class Balance:
+    def __init__(self, balance):
+        self.__balance = balance
 
     def check_balance(self) -> float:
-        return self.balance
+        return self.__balance
 
     def add_balance(self, amount: float):
-        self.balance += amount
-        return self.balance
+        self.__balance += amount
+        return self.__balance
 
     def deduct_balance(self, amount: float) -> bool:
-        if amount <= self.balance:
-            self.balance -= amount
+        if amount <= self.__balance:
+            self.__balance -= amount
             return True
         return False
 
-    def transaction_history(self) -> List[Dict]:
-        return self.transaction_list
 
-    def handle_request(self, request: Request):
+class User:
+    def __init__(self, username: str, first_name: str, last_name: str, balance: float, email: str):
+        self.username = username
+        self.email = email
+        self.first_name = first_name
+        self.last_name = last_name
+        self.__balance = Balance(balance)
+        self.__transaction_list = []
+
+    def get_balance(self):
+        return self.__balance.check_balance()
+
+    def add_balance(self, amount: float):
+        return self.__balance.add_balance(amount)
+
+    def deduct_balance(self, amount: float):
+        return self.__balance.deduct_balance(amount)
+
+    def add_transaction(self, transaction: Dict):
+        self.__transaction_list.append(transaction)
+
+    def transaction_history(self):
+        return self.__transaction_list
+
+
+class UserService:
+    users_db = {}
+
+    def __init__(self):
+        self.current_user = None
+
+    def _hash_password(self, password):
+        password = password.encode('utf-8')
+        hash_object = hashlib.sha256(password)
+        hex_dig = hash_object.hexdigest()
+        return hex_dig
+
+    def sign_in(self, username, password):
+        if username not in self.users_db:
+            print("User doesn't exist")
+            return False
+        hashed_password = self._hash_password(password)
+        if self.users_db[username]['password'] == hashed_password:
+            self.current_user = self.users_db[username]['user']
+            print("Successfully signed in")
+            return True
+        else:
+            print("Wrong password. Try again")
+            return False
+
+    def sign_up(self, username: str, password: str, first_name: str, last_name: str, balance: float, email: str):
+        if username in self.users_db:
+            print("User already exists")
+            return False
+        new_user = User(username, first_name, last_name, balance, email)
+        self.users_db[username] = {}
+        self.users_db[username]['user'] = new_user
+        self.users_db[username]['password'] = self._hash_password(password)
+        print("Successfully signed up")
+        return True
+
+    def handle_request(self, request: Request) -> List:
+        if self.current_user is None:
+            return False
         prediction, data = request.prediction()
-        count_sum = 0
-        if self.deduct_balance(10):
-            count_sum += 10
-            self.transaction_list['spent_money'] = count_sum
-            self.transaction_list['prediction'] = prediction.to_dict(orient='records')
-            self.transaction_list['data'] = data
-        return self.transaction_list
+        spent_sum = 0
+        if self.current_user.deduct_balance(10):
+            spent_sum += 10
+            transaction = {
+                'spent_money': spent_sum,
+                'prediction': prediction.to_dict(orient='records'),
+                'data': data
+            }
+            self.current_user.add_transaction(transaction)
+        return transaction
 
+    def transaction_history(self):
+        return self.current_user.transaction_history()
 
-m = joblib.load('/home/sasha/Загрузки/prophet_model.pkl')
 
 if __name__ == '__main__':
-    #Пример
-    user = User('kk', 'Aleks', 'Kud', 10, '0880')
-    request = Request('2024-02-27', m)
-    try:
-        result = user.handle_request(request)
-    except:
-        raise ValueError("Ошибка")
+    model = joblib.load('prophet_model.pkl')
+    # Пример
+    service = UserService()
+    service.sign_up('kskkssk', '0880', 'Aleks', 'Kud', 20, 'example@gmail.com')
+    service.sign_in('kskkssk', '0880')
+    request = Request('2024-02-27', model)
+    transaction = service.handle_request(request)
+    if transaction:
+        print(transaction)
+    else:
+        print("Ошибка")
 
-    print('История транзакций', user.transaction_history())
+    print('История транзакций', service.transaction_history())
