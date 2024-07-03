@@ -60,7 +60,7 @@ class User:
         return self.transaction_list
 
 
-m = joblib.load('/home/sasha/Загрузки/prophet_model.pkl')
+m = joblib.load('prophet_model.pkl')
 
 if __name__ == '__main__':
     #Пример
