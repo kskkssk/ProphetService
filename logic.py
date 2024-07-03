@@ -63,6 +63,7 @@ class User:
 m = joblib.load('/home/sasha/Загрузки/prophet_model.pkl')
 
 if __name__ == '__main__':
+    #Пример
     user = User('kk', 'Aleks', 'Kud', 10, '0880')
     request = Request('2024-02-27', m)
     try:
