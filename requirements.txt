@@ -1,14 +1,13 @@
-altgraph @ file:///AppleInternal/Library/BuildRoots/860631e9-c1c5-11ee-98ee-b6ef2fd8d87b/Library/Caches/com.apple.xbs/Sources/python3/altgraph-0.17.2-py2.py3-none-any.whl
 cmdstanpy==1.2.4
 contourpy==1.2.1
 cycler==0.12.1
 fonttools==4.53.0
-future @ file:///AppleInternal/Library/BuildRoots/860631e9-c1c5-11ee-98ee-b6ef2fd8d87b/Library/Caches/com.apple.xbs/Sources/python3/future-0.18.2-py3-none-any.whl
+future==0.18.2
 holidays==0.52
 importlib_resources==6.4.0
 joblib==1.4.2
 kiwisolver==1.4.5
-macholib @ file:///AppleInternal/Library/BuildRoots/860631e9-c1c5-11ee-98ee-b6ef2fd8d87b/Library/Caches/com.apple.xbs/Sources/python3/macholib-1.15.2-py2.py3-none-any.whl
+macholib==1.15.2
 matplotlib==3.9.1
 numpy==2.0.0
 packaging==24.1
@@ -18,7 +17,7 @@ prophet==1.1.5
 pyparsing==3.1.2
 python-dateutil==2.9.0.post0
 pytz==2024.1
-six @ file:///AppleInternal/Library/BuildRoots/860631e9-c1c5-11ee-98ee-b6ef2fd8d87b/Library/Caches/com.apple.xbs/Sources/python3/six-1.15.0-py2.py3-none-any.whl
+six==1.15.0
 stanio==0.5.0
 tqdm==4.66.4
 tzdata==2024.1
