@@ -1,5 +1,5 @@
-from mlservice.models.user import User
-from mlservice.models.request import Request
+from models.user import User
+from models.request import Request
 from typing import List
 import hashlib
 

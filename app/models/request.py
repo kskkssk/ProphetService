@@ -1,3 +1,6 @@
+import pandas as pd
+
+
 class Request:
     def __init__(self, data, model):
         self.data = data

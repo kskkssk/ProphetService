@@ -1,4 +1,4 @@
-from mlservice.models.balance import Balance
+from models.balance import Balance
 from typing import Dict
 
 

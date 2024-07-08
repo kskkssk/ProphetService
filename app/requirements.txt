@@ -9,7 +9,7 @@ joblib==1.4.2
 kiwisolver==1.4.5
 macholib==1.15.2
 matplotlib==3.9.1
-numpy==2.0.0
+numpy==1.26.4
 packaging==24.1
 pandas==2.2.2
 pillow==10.4.0
