@@ -21,8 +21,17 @@ services:
       - 5672:5672
     volumes:
       - ./rabbitmq:/var/lib/rabbitmq
+    environment:
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASS: ${RABBITMQ_PASS}
     restart: on-failure
   database:
+    ports:
+      - 5432:5432
     build: ./database
     volumes:
       - ./database:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
