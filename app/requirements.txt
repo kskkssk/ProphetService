@@ -22,3 +22,5 @@ stanio==0.5.0
 tqdm==4.66.4
 tzdata==2024.1
 zipp==3.19.2
+fastapi==0.78.0
+uvicorn

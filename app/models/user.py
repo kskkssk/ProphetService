@@ -1,24 +1,27 @@
-from models.balance import Balance
 from typing import Dict
+from sqlalchemy import Column, Integer, String, JSON
+from database.database import Base
+from sqlalchemy.orm import relationship
 
 
-class User:
+class User(Base):
+    __tablename__ = 'users'
+    id = Column(Integer, primary_key=True)
+    username = Column(String)
+    email = Column(String)
+    first_name = Column(String)
+    last_name = Column(String)
+    balance = relationship("Balance", back_populates="user")
+    requests = relationship("Request", back_populates="user")
+    transaction_list = Column(JSON)
+
     def __init__(self, username: str, first_name: str, last_name: str, balance: float, email: str):
         self.username = username
         self.email = email
         self.first_name = first_name
         self.last_name = last_name
-        self.__balance = Balance(balance)
-        self.__transaction_list = []
-
-    def get_balance(self):
-        return self.__balance.check_balance()
-
-    def add_balance(self, amount: float):
-        return self.__balance.add_balance(amount)
-
-    def deduct_balance(self, amount: float):
-        return self.__balance.deduct_balance(amount)
+        self.balance = balance
+        self.transaction_list = []
 
     def add_transaction(self, transaction: Dict):
         self.__transaction_list.append(transaction)

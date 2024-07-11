@@ -15,14 +15,14 @@ services:
     depends_on:
       - app
   rabbit-mq:
-    build: ./rabbitmq
+    image: rabbitmq
     ports:
       - 15672:15672
       - 5672:5672
     volumes:
-      - ./rabbitmq:/var/lib/rabbitmq
+      - ./rabbitmq_data:/var/lib/rabbitmq
     restart: on-failure
   database:
-    build: ./database
+    image: postgres:16-alpine
     volumes:
-      - ./database:/var/lib/postgresql/data
+      - ./database_data:/var/lib/postgresql/data
