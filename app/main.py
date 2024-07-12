@@ -30,7 +30,7 @@ if __name__ == '__main__':
 
             # Load machine learning model
             model = joblib.load('prophet_model.pkl')
-            request_data = '2024-07-10'
+            request_data = '2024-10-10'
             request = Request(data=request_data, model=model)
 
             # Handle request
