@@ -10,7 +10,7 @@ class Request(Base):
     data = Column(String)
     model = Column(String)
     user_id = Column(Integer, ForeignKey('users.id'))
-    user = relationship("User", back_populates="request")
+    #user = relationship("User", back_populates="request")
 
     def __init__(self, data, model):
         self.data = data

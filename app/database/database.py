@@ -1,8 +1,25 @@
-from sqlalchemy import create_engine, sessionmaker
+from dotenv import load_dotenv
+import os
+from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from config import url
+from sqlalchemy.orm import sessionmaker
 
+dotenv_path = '/Users/denissergeich/service/pythonProject/mlservice/app/.env'
+
+load_dotenv()
+
+DB_HOST = os.getenv('DB_HOST')
+DB_PORT = os.getenv('DB_PORT')
+DB_USER = os.getenv('DB_USER')
+DB_PASSWORD = os.getenv('DB_PASSWORD')
+DB_NAME = os.getenv('DB_NAME')
+
+db_url = f'postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
+engine = create_engine(db_url)
 
 Base = declarative_base()
-engine = create_engine(url)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+SessionLocal = sessionmaker(bind=engine)
+
+
+

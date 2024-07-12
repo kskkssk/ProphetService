@@ -1,11 +1,12 @@
 from models.user import User
+from models.balance import Balance
 from models.request import Request
 from typing import List, Optional
 import hashlib
-from database.database import Base, SessionLocal
+from database.database import SessionLocal
 
 
-class UserService(Base):
+class UserService:
     def __init__(self, session):
         self.current_user: Optional[User] = None
         self.session = session
@@ -16,19 +17,25 @@ class UserService(Base):
         hex_dig = hash_object.hexdigest()
         return hex_dig
 
-    def create_user(self, username: str, password: str, first_name: str, last_name: str, email: str, balance=0):
+    def create_user(self, username: str, password: str, first_name: str, last_name: str, email: str, balance: float = 0.0):
         user = self.session.query(User).filter_by(username=username).first()
         if user:
             print("User already exists")
+            return False
+        email_exists = self.session.query(User).filter_by(email=email).first()
+        if email_exists:
+            print("User with email already exists")
             return False
         new_user = User(username=username,
                         password=self._hash_password(password),
                         first_name=first_name,
                         last_name=last_name,
-                        balance=balance,
                         email=email,
-                        transaction_list=[])
+                        amount=balance)
         self.session.add(new_user)
+        self.session.commit()
+        user_balance = Balance(amount=balance, user_id=new_user.id)
+        self.session.add(user_balance)
         self.session.commit()
         print("Successfully signed up")
         return True

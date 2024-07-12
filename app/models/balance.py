@@ -5,7 +5,7 @@ from sqlalchemy.orm import relationship
 
 class Balance(Base):
     __tablename__ = 'balance'
-
+    id = Column(Integer, primary_key=True)
     amount = Column(Float, default=0.0)
     user_id = Column(Integer, ForeignKey('users.id'))
     user = relationship("User", back_populates="balance")
