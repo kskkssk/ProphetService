@@ -10,13 +10,14 @@ if __name__ == '__main__':
         balance_service = BalanceService(session)
 
         admin = user_service.create_user('admin', '0880', 'Admin', 'User', 'example@gmail.com', 100000000)
-        demo_user = user_service.create_user('demo', '0880', 'Demo', 'User', 'example@gmail.com', 20)
+        demo_user = user_service.create_user('demo', '0880', 'Demo', 'User', 'demo@gmail.com', 20, )
+        new_user = user_service.create_user('new', '7890', 'New', 'User', 'new@gmail.com', 0)
 
         user_service.login('admin', '0880')
         if user_service.current_user:
-            print("Logged in as:", user_service.current_user)
+            print("Logged in as:", user_service.current_user.username)
 
-            balance_service.add_balance(user_service.current_user.id, 20)
+            balance_service.add_balance(user_service.current_user.id, 30)
             print("Balance:", balance_service.get_balance(user_service.current_user.id))
 
             model = joblib.load('prophet_model.pkl')

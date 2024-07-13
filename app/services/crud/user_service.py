@@ -1,17 +1,21 @@
 from models.user import User
 from models.balance import Balance
 from models.request import Request
+from services.crud.balance_service import BalanceService
 from typing import List, Optional
+from datetime import datetime
+from sqlalchemy.orm.attributes import flag_modified
+from sqlalchemy.ext.mutable import MutableList
 import hashlib
-from database.database import SessionLocal
 
 
 class UserService:
     def __init__(self, session):
         self.current_user: Optional[User] = None
         self.session = session
+        self.balance_service = BalanceService(session)
 
-    def _hash_password(self, password):
+    def _hash_password(self, password: str):
         password = password.encode('utf-8')
         hash_object = hashlib.sha256(password)
         hex_dig = hash_object.hexdigest()
@@ -24,14 +28,14 @@ class UserService:
             return False
         email_exists = self.session.query(User).filter_by(email=email).first()
         if email_exists:
-            print("User with email already exists")
+            print(f"User with email {email} already exists")
             return False
         new_user = User(username=username,
                         password=self._hash_password(password),
                         first_name=first_name,
                         last_name=last_name,
                         email=email,
-                        amount=balance)
+                        transaction_list=[])
         self.session.add(new_user)
         self.session.commit()
         user_balance = Balance(amount=balance, user_id=new_user.id)
@@ -76,21 +80,21 @@ class UserService:
             return False
         prediction, data = request.prediction()
         spent_sum = 0
-        if self.current_user.balance.deduct_balance(10):
+        if self.balance_service.deduct_balance(user_id=self.current_user.id, amount=10):
             spent_sum += 10
-            transaction = {
+            transaction_data = {
                 'spent_money': spent_sum,
                 'prediction': prediction.to_dict(orient='records'),
                 'data': data
             }
-            self.current_user.add_transaction(transaction)
+            self.current_user.transaction_list.append(transaction_data)
+            flag_modified(self.current_user, "transaction_list")
             self.session.commit()
-            return transaction
+            return transaction_data
         else:
             return None
 
-    def transaction_history(self):
-        if self.current_user:
-            return self.current_user.transaction_history()
-        else:
-            return None
+    def transaction_history(self) -> List[dict]:
+        if self.current_user is None:
+            return []
+        return self.current_user.transaction_list

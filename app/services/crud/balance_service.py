@@ -20,3 +20,11 @@ class BalanceService:
             return balance.amount
         else:
             raise ValueError(f"Баланс для пользователя {user_id} не найден")
+
+    def deduct_balance(self, user_id: int, amount: float) -> bool:
+        balance = self.session.query(Balance).filter_by(user_id=user_id).first()
+        if amount <= balance.amount:
+            balance.amount -= amount
+            self.session.commit()
+            return True
+        return False
