@@ -21,7 +21,7 @@ if __name__ == '__main__':
             print("Balance:", balance_service.get_balance(user_service.current_user.id))
 
             model = joblib.load('prophet_model.pkl')
-            request_data = '2024-10-10'
+            request_data = '2022-10-10'
             request = Request(data=request_data, model=model)
 
             transaction = user_service.handle_request(request)

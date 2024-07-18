@@ -22,4 +22,14 @@ Base = declarative_base()
 SessionLocal = sessionmaker(bind=engine)
 
 
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
+
+def init_db():
+    import mlservice.app.models
+    Base.metadata.create_all(bind=engine)

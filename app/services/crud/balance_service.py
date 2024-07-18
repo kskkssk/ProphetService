@@ -1,30 +1,34 @@
-from models.balance import Balance
+from sqlalchemy.orm import Session
+from mlservice.app.models.balance import Balance
 
 
 class BalanceService:
-    def __init__(self, session):
+    def __init__(self, session: Session):
         self.session = session
 
-    def add_balance(self, user_id: int, amount: float) -> float:
+    def add_balance(self, user_id: int, amount: float) -> Balance:
         balance = self.session.query(Balance).filter_by(user_id=user_id).first()
         if balance:
             balance.amount += amount
-            self.session.commit()
-            return balance.amount
         else:
-            raise ValueError(f"Баланс для пользователя {user_id} не найден")
+            balance = Balance(user_id=user_id, amount=amount)
+            self.session.add(balance)
+        self.session.commit()
+        return balance
 
-    def get_balance(self, user_id: int) -> float:
+    def get_balance(self, user_id: int) -> Balance:
         balance = self.session.query(Balance).filter_by(user_id=user_id).first()
         if balance:
-            return balance.amount
+            return balance
         else:
-            raise ValueError(f"Баланс для пользователя {user_id} не найден")
+            raise ValueError(f"Balance for user {user_id} not found")
 
-    def deduct_balance(self, user_id: int, amount: float) -> bool:
-        balance = self.session.query(Balance).filter_by(user_id=user_id).first()
+    def deduct_balance(self, user_id: int, amount: float) -> Balance:
+        balance = self.get_balance(user_id)
         if amount <= balance.amount:
             balance.amount -= amount
             self.session.commit()
-            return True
-        return False
+            return balance
+        else:
+            raise ValueError(f"Not enough balance for user {user_id}")
+
