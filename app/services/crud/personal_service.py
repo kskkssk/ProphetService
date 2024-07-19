@@ -1,10 +1,10 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.attributes import flag_modified
 from typing import List, Dict
-from mlservice.app.models.balance import Balance
-from mlservice.app.models.user import User
-from mlservice.app.services.crud.balance_service import BalanceService
-from mlservice.app.services.crud.request_service import RequestService
+from models.balance import Balance
+from models.user import User
+from services.crud.balance_service import BalanceService
+from services.crud.request_service import RequestService
 
 
 class PersonService:

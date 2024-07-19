@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from mlservice.app.models.balance import Balance
+from models.balance import Balance
 
 
 class BalanceService:

@@ -1,7 +1,7 @@
-from mlservice.app.models.user import User
-from mlservice.app.models.balance import Balance
-from mlservice.app.services.crud.request_service import RequestService
-from mlservice.app.services.crud.balance_service import BalanceService
+from models.user import User
+from models.balance import Balance
+from services.crud.request_service import RequestService
+from services.crud.balance_service import BalanceService
 from typing import List, Optional
 from sqlalchemy.orm.attributes import flag_modified
 import hashlib
@@ -101,3 +101,8 @@ class UserService:
         if self.current_user is None:
             raise ValueError("No user is currently logged in")
         return self.current_user
+
+    def logout(self):
+        global current_user
+        current_user = None
+        self.current_user = None

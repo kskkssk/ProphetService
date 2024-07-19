@@ -1,12 +1,13 @@
 from prophet import Prophet
 import joblib
-from mlservice.app.models.request import Request
+from models.request import Request
 import pandas as pd
 
 
 class RequestService:
     def __init__(self, session):
         self.session = session
+
 
     def validate(self, data: str):
         try:

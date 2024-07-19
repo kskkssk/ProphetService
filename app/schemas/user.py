@@ -3,7 +3,6 @@ from typing import List
 
 
 class UserBase(BaseModel):
-    id: int
     username: str
     password: str
     email: EmailStr
