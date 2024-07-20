@@ -1,7 +1,14 @@
 from telebot import TeleBot, types
-from datetime import datetime
-from config import TOKEN, API_URL
+import os
+from dotenv import load_dotenv
 import requests
+
+dotenv_path = '/Users/denissergeich/service/pythonProject/mlservice/app/.env'
+
+load_dotenv()
+
+TOKEN = os.getenv('TOKEN')
+API_URL = os.getenv('API_URL')
 
 bot = TeleBot(TOKEN)
 API_URL = API_URL
