@@ -4,7 +4,7 @@ from services.crud.user_service import UserService
 from services.crud.personal_service import PersonService
 from database.database import get_db
 
-user_route = APIRouter(tags=['User'])
+user_delete_route = APIRouter(tags=['User'])
 
 
 def get_user_service(db: Session = Depends(get_db)) -> UserService:
@@ -16,7 +16,7 @@ def get_person_service(user_service: UserService = Depends(get_user_service)) ->
     return PersonService(user_service.session, current_user)
 
 
-@user_route.delete("/user/{user_id}", response_model=dict)
+@user_delete_route.delete("/user/{user_id}", response_model=dict)
 async def delete_user(user_id: int, user_service: UserService = Depends(get_user_service)):
     try:
         user_service.delete_user(user_id)

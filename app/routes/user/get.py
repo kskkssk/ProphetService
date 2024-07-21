@@ -7,7 +7,7 @@ from schemas.user import UserCreate, UserResponse, UserSignin
 from typing import List
 
 
-user_route = APIRouter(tags=['User'])
+user_get_route = APIRouter(tags=['User'])
 
 
 def get_user_service(db: Session = Depends(get_db)) -> UserService:
@@ -19,13 +19,13 @@ def get_person_service(user_service: UserService = Depends(get_user_service)) ->
     return PersonService(user_service.session, current_user)
 
 
-@user_route.get("/all_users", response_model=List[UserResponse])
+@user_get_route.get("/all_users", response_model=List[UserResponse])
 async def get_all_users(user_service: UserService = Depends(get_user_service)):
     users = user_service.get_all_users()
     return [UserResponse.from_orm(user) for user in users]
 
 
-@user_route.get("/user/email/{email}", response_model=UserResponse)
+@user_get_route.get("/user/email/{email}", response_model=UserResponse)
 async def get_user_by_email(email: str, user_service: UserService = Depends(get_user_service)):
     user = user_service.get_user_by_email(email)
     if user is None:
@@ -33,7 +33,7 @@ async def get_user_by_email(email: str, user_service: UserService = Depends(get_
     return UserResponse.from_orm(user)
 
 
-@user_route.get("/user/id/{user_id}", response_model=UserResponse)
+@user_get_route.get("/user/id/{user_id}", response_model=UserResponse)
 async def get_user_by_id(user_id: int, user_service: UserService = Depends(get_user_service)):
     user = user_service.get_user_by_id(user_id)
     if user is None:
@@ -41,12 +41,12 @@ async def get_user_by_id(user_id: int, user_service: UserService = Depends(get_u
     return UserResponse.from_orm(user)
 
 
-@user_route.get("/transaction_history", response_model=List[dict])
+@user_get_route.get("/transaction_history", response_model=List[dict])
 async def transaction_history(person_service: PersonService = Depends(get_person_service)):
     return person_service.transaction_history()
 
 
-@user_route.get("/current_user", response_model=UserResponse)
+@user_get_route.get("/current_user", response_model=UserResponse)
 async def get_current_user(user_service: UserService = Depends(get_user_service)):
     user = user_service.get_current_user()
     return UserResponse.from_orm(user)

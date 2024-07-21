@@ -6,7 +6,7 @@ from services.crud.user_service import UserService
 from database.database import get_db
 
 
-balance_route = APIRouter(tags=['Balance'])
+balance_post_route = APIRouter(tags=['Balance'])
 
 
 def get_user_service(db: Session = Depends(get_db)) -> UserService:
@@ -18,7 +18,7 @@ def get_person_service(user_service: UserService = Depends(get_user_service)) ->
     return PersonService(user_service.session, current_user)
 
 
-@balance_route.post("/add_balance", response_model=BalanceResponse)
+@balance_post_route.post("/add_balance", response_model=BalanceResponse)
 async def add_balance(amount: float, person_service: PersonService = Depends(get_person_service)):
     try:
         new_balance = person_service.add_balance(amount)

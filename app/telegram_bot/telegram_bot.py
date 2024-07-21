@@ -203,7 +203,7 @@ def transaction_history(message):
 
 @bot.message_handler(func=lambda message: message.text == "Выйти из профиля")
 def logout(message):
-    request = requests.post(url=f"{API_URL}/users/logout")
+    request = requests.delete(url=f"{API_URL}/users/logout")
     if request.status_code == 200:
         bot.send_message(message.chat.id, "Вы успешно вышли из профиля")
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)

@@ -7,7 +7,7 @@ from database.database import get_db
 from sqlalchemy.orm import Session
 
 
-balance_route = APIRouter(tags=['Balance'])
+balance_get_route = APIRouter(tags=['Balance'])
 
 
 def get_user_service(db: Session = Depends(get_db)) -> UserService:
@@ -18,7 +18,8 @@ def get_person_service(user_service: UserService = Depends(get_user_service)) ->
     current_user = user_service.get_current_user()
     return PersonService(user_service.session, current_user)
 
-@balance_route.get("/get_balance", response_model=BalanceResponse)
+
+@balance_get_route.get("/get_balance", response_model=BalanceResponse)
 async def get_balance(person_service: PersonService = Depends(get_person_service)):
     try:
         balance = person_service.get_balance()
