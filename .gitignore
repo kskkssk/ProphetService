@@ -97,10 +97,19 @@ venv.bak/
 .mypy_cache/
 .dmypy.json
 dmypy.json
-
+context.tar
 
 .pyre/
 
 .pytype/
 
 .idea/
+
+# Ignore Postgres data
+postgres-data/
+
+# Ignore RabbitMQ data
+rabbitmq-data/
+
+rabbitmq
+

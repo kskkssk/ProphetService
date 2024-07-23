@@ -43,13 +43,13 @@ async def delete_user(user_id: int, user_service: UserService = Depends(get_user
     return {"message": "User deleted successfully"}
 
 
-@user_route.get("/get_all_users", response_model=List[UserResponse])
+@user_route.get("/all/list", response_model=List[UserResponse])
 async def get_all_users(user_service: UserService = Depends(get_user_service)):
     users = user_service.get_all_users()
     return [UserResponse.from_orm(user) for user in users]
 
 
-@user_route.get("/get_user_by_email/{email}", response_model=UserResponse)
+@user_route.get("/user/{email}", response_model=UserResponse)
 async def get_user_by_email(email: str, user_service: UserService = Depends(get_user_service)):
     user = user_service.get_user_by_email(email)
     if user is None:
@@ -57,7 +57,7 @@ async def get_user_by_email(email: str, user_service: UserService = Depends(get_
     return UserResponse.from_orm(user)
 
 
-@user_route.get("/get_user_by_id/{user_id}", response_model=UserResponse)
+@user_route.get("/user/{user_id}", response_model=UserResponse)
 async def get_user_by_id(user_id: int, user_service: UserService = Depends(get_user_service)):
     user = user_service.get_user_by_id(user_id)
     if user is None:
@@ -80,6 +80,13 @@ async def get_current_user(user_service: UserService = Depends(get_user_service)
 async def handle_request_endpoint(data: str, model: str, user_service: UserService = Depends(get_user_service)):
     try:
         current_user = user_service.get_current_user()
+        task = handle_request.apply_async(args=[data, model, current_user.id])
+        return {"message": "Task sent to worker"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+
         task = handle_request.apply_async(args=[data, model, current_user.id])
         return {"message": "Task sent to worker"}
     except ValueError as e:

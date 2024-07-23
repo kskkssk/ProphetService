@@ -26,7 +26,7 @@ async def add_balance(amount: float, person_service: PersonService = Depends(get
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@balance_route.get("/get_balance", response_model=BalanceResponse)
+@balance_route.get("/balance", response_model=BalanceResponse)
 async def get_balance(person_service: PersonService = Depends(get_person_service)):
     try:
         balance = person_service.get_balance()
