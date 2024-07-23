@@ -19,13 +19,13 @@ def get_person_service(user_service: UserService = Depends(get_user_service)) ->
     return PersonService(user_service.session, current_user)
 
 
-@user_get_route.get("/all_users", response_model=List[UserResponse])
+@user_get_route.get("/all", response_model=List[UserResponse])
 async def get_all_users(user_service: UserService = Depends(get_user_service)):
     users = user_service.get_all_users()
     return [UserResponse.from_orm(user) for user in users]
 
 
-@user_get_route.get("/user/email/{email}", response_model=UserResponse)
+@user_get_route.get("/user/{email}", response_model=UserResponse)
 async def get_user_by_email(email: str, user_service: UserService = Depends(get_user_service)):
     user = user_service.get_user_by_email(email)
     if user is None:
@@ -33,7 +33,7 @@ async def get_user_by_email(email: str, user_service: UserService = Depends(get_
     return UserResponse.from_orm(user)
 
 
-@user_get_route.get("/user/id/{user_id}", response_model=UserResponse)
+@user_get_route.get("/user/{user_id}", response_model=UserResponse)
 async def get_user_by_id(user_id: int, user_service: UserService = Depends(get_user_service)):
     user = user_service.get_user_by_id(user_id)
     if user is None:

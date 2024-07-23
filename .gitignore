@@ -113,3 +113,4 @@ rabbitmq-data/
 
 rabbitmq
 
+app/telegram_bot/config.py

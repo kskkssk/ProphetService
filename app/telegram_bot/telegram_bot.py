@@ -2,6 +2,7 @@ from telebot import TeleBot, types
 from datetime import datetime
 from config import TOKEN, API_URL
 import requests
+4
 
 bot = TeleBot(TOKEN)
 API_URL = API_URL
@@ -133,7 +134,7 @@ def add_money(message):
 
 @bot.message_handler(func=lambda message: message.text == "Посмотреть баланс")
 def get_balance(message):
-    request = requests.get(f"{API_URL}/balances/get_balance")
+    request = requests.get(f"{API_URL}/balances/balance")
     if request.status_code == 200:
         balance = request.json().get('amount')
         bot.send_message(message.chat.id, f'Ваш баланс: {balance}')
@@ -151,20 +152,16 @@ def insert_data(message):
 
 def handle_request(message):
     data = message.text
-    params = {
-        "data": data,
-        "model": 'prophet_model'
-    }
-    request = requests.post(f"{API_URL}/users/handle_request", params=params)
-    if request.status_code == 200:
-        predictions = request.json().get('prediction')
-        formatted_prediction = format_prediction(predictions)
-        bot.send_message(message.chat.id, f"Прогноз:\n{formatted_prediction}")
-    elif request.status_code == 500:
-        bot.send_message(message.chat.id, "Вы не авторизованы. Пожалуйста, войдите в аккаунт.")
+    response = requests.get(f"{API_URL}/users/current_user")
+    if response.status_code == 200:
+        user_data = response.json()
+        current_user = user_data.get("username")
     else:
-        bot.send_message(message.chat.id, f"Ошибка запроса: {request.json().get('detail', 'Ошибка запроса')}")
+        bot.send_message(message.chat.id, "Вы не авторизованы. Пожалуйста, войдите в аккаунт.")
+        return None
 
+    celery_handle_request.apply_async(args=[data, 'prophet_model', current_user])
+    bot.send_message(message.chat.id, "Ваш запрос был отправлен на обработку. Вы получите уведомление о завершении.")
 
 def format_prediction(predictions):
     formatted_output = ""

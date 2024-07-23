@@ -4,6 +4,7 @@ from services.crud.user_service import UserService
 from services.crud.personal_service import PersonService
 from database.database import get_db
 from schemas.user import UserCreate, UserResponse, UserSignin
+from worker.tasks import handle_request as celery_handle_request
 
 user_post_route = APIRouter(tags=['User'])
 
@@ -33,12 +34,13 @@ async def signup(data: UserSignin, user_service: UserService = Depends(get_user_
 
 
 @user_post_route.post("/handle_request", response_model=dict)
-async def handle_request(data: str, model, person_service: PersonService = Depends(get_person_service)):
+async def handle_request(data: str, model: str, user_service: UserService = Depends(get_user_service)):
     try:
-        transaction_data = person_service.handle_request(data, model)
-        return transaction_data
+        current_user = user_service.get_current_user()
+        task = celery_handle_request.apply_async(args=[data, model, current_user.username])
+        return {"message": "Task sent to worker"}
     except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @user_post_route.post("/logout", response_model=dict)

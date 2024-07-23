@@ -6,11 +6,11 @@ from models.user import User
 
 
 @app.task
-def handle_request(data: str, model: str, user_id: int):
+def handle_request(data: str, model: str, username: str):
     db = get_db()
     session = next(db)
     try:
-        user = session.query(User).get(user_id)
+        user = session.query(User).filter_by(username=username).first()
         if user is None:
             raise ValueError("User not found")
         person_service = PersonService(session, user)

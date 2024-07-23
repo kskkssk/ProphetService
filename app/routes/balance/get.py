@@ -19,7 +19,7 @@ def get_person_service(user_service: UserService = Depends(get_user_service)) ->
     return PersonService(user_service.session, current_user)
 
 
-@balance_get_route.get("/get_balance", response_model=BalanceResponse)
+@balance_get_route.get("/balance", response_model=BalanceResponse)
 async def get_balance(person_service: PersonService = Depends(get_person_service)):
     try:
         balance = person_service.get_balance()
