@@ -144,6 +144,7 @@ pandas==2.2.2
 pathspec==0.12.1
 pendulum==3.0.0
 pillow==10.4.0
+pika
 platformdirs==3.11.0
 pluggy==1.5.0
 prison==0.2.1
@@ -234,3 +235,4 @@ WTForms==3.1.2
 yarl==1.9.4
 zc.lockfile==3.0.post1
 zipp==3.19.2
+

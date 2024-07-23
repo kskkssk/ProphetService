@@ -2,7 +2,8 @@ from fastapi import FastAPI
 from routes.home import home_route
 from routes.user import user_route
 from routes.balance import balance_route
-
+import json
+import pika
 from database.database import init_db
 import uvicorn
 

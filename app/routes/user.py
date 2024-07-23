@@ -5,6 +5,7 @@ from services.crud.personal_service import PersonService
 from database.database import get_db
 from schemas.user import UserCreate, UserResponse, UserSignin
 from typing import List
+from worker.tasks import handle_request
 
 user_route = APIRouter(tags=['User'])
 
@@ -76,12 +77,13 @@ async def get_current_user(user_service: UserService = Depends(get_user_service)
 
 
 @user_route.post("/handle_request", response_model=dict)
-async def handle_request(data: str, model, person_service: PersonService = Depends(get_person_service)):
+async def handle_request_endpoint(data: str, model: str, user_service: UserService = Depends(get_user_service)):
     try:
-        transaction_data = person_service.handle_request(data, model)
-        return transaction_data
+        current_user = user_service.get_current_user()
+        task = handle_request.apply_async(args=[data, model, current_user.id])
+        return {"message": "Task sent to worker"}
     except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @user_route.post("/logout", response_model=dict)

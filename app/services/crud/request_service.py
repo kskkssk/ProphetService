@@ -8,7 +8,6 @@ class RequestService:
     def __init__(self, session):
         self.session = session
 
-
     def validate(self, data: str):
         try:
             date_obj = pd.to_datetime(data, format='%Y-%m-%d')
@@ -16,13 +15,11 @@ class RequestService:
         except ValueError:
             raise ValueError('Expected date in the format YYYY-MM-DD')
 
-
     def load_prophet_model(self, model_path: str) -> Prophet:
-        model_path = '/Users/denissergeich/service/pythonProject/mlservice/app/prophet_model.pkl'
+        model_path = 'prophet_model.pkl'
         with open(model_path, 'rb') as f:
             model = joblib.load(f)
         return model
-
 
     def prediction(self, data: str, model_path: str):
         prophet_model = self.load_prophet_model(model_path)

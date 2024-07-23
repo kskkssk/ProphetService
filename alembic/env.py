@@ -15,14 +15,15 @@ if config.config_file_name:
 
 # Import all your SQLAlchemy models here that need to be included in migrations
 # Make sure to import them from the correct module path
-from app.models.user import User
-from app.models.request import Request
-from app.database.database import Base, engine
-from app.models.balance import Balance
 
-# Attach the metadata of your Base class (which includes all SQLAlchemy models)
-# This is crucial for 'autogenerate' support
+from app.database.database import Base
+from app.models.user import User
+from app.models.balance import Balance
+from app.models.request import Request
+
+# target_metadata = Base.metadata
 target_metadata = Base.metadata
+
 
 # This function is used when running migrations without a live database connection.
 def run_migrations_offline() -> None:

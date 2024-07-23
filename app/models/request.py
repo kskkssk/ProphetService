@@ -1,7 +1,6 @@
-import pandas as pd
 from database.database import Base
 from sqlalchemy import Integer, String, ForeignKey, LargeBinary
-from sqlalchemy.orm import relationship, mapped_column
+from sqlalchemy.orm import mapped_column
 
 
 class Request(Base):

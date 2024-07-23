@@ -31,5 +31,7 @@ def get_db():
 
 
 def init_db():
-    import mlservice.app.models
+    import models.user
+    import models.balance
+    import models.request
     Base.metadata.create_all(bind=engine)
