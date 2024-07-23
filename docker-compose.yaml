@@ -39,7 +39,7 @@ services:
     build:
       context: .
       dockerfile: ./worker/Dockerfile.worker
-    command: celery -A worker.celery_config.app worker --loglevel=info
+    command:
     env_file:
       - ./.env
     environment:
@@ -55,6 +55,8 @@ services:
     depends_on:
       - rabbit-mq
       - db
+    deploy:
+      replicas: 2
 
   rabbit-mq:
     image: rabbitmq:3-management
