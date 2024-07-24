@@ -106,7 +106,7 @@ context.tar
 .idea/
 
 # Ignore Postgres data
-postgres-data/
+postgres_data/
 
 # Ignore RabbitMQ data
 rabbitmq_data/
