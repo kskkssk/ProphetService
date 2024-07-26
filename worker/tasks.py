@@ -14,7 +14,8 @@ def handle_request(data: str, model: str, username: str):
         if user is None:
             raise ValueError("User not found")
         person_service = PersonService(session, user)
-        return person_service.handle_request(data, model)
+        result = person_service.handle_request(data, model)
+        return result
     finally:
         db.close()
 

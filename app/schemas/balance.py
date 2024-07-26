@@ -6,6 +6,9 @@ class BalanceBase(BaseModel):
     amount: float
     user_id: int
 
+    class Config:
+        from_attributes = True
+
 
 class BalanceResponse(BaseModel):
     id: int

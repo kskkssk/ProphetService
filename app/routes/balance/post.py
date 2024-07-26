@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Form
 from sqlalchemy.orm import Session
 from schemas.balance import BalanceResponse
 from services.crud.personal_service import PersonService
@@ -19,7 +19,7 @@ def get_person_service(user_service: UserService = Depends(get_user_service)) ->
 
 
 @balance_post_route.post("/add_balance", response_model=BalanceResponse)
-async def add_balance(amount: float, person_service: PersonService = Depends(get_person_service)):
+async def add_balance(amount: float = Form(...), person_service: PersonService = Depends(get_person_service)):
     try:
         new_balance = person_service.add_balance(amount)
         return BalanceResponse(id=new_balance.user_id, amount=new_balance.amount)

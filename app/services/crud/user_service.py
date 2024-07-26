@@ -5,6 +5,10 @@ from services.crud.balance_service import BalanceService
 from typing import List, Optional
 from sqlalchemy.orm.attributes import flag_modified
 import hashlib
+from passlib.context import CryptContext
+from auth.jwt_handler import create_access_token
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 current_user = None
 
@@ -17,11 +21,10 @@ class UserService:
         self.balance_service = BalanceService(session)
         self.request_service = RequestService(session)
 
+
     def _hash_password(self, password: str):
-        password = password.encode('utf-8')
-        hash_object = hashlib.sha256(password)
-        hex_dig = hash_object.hexdigest()
-        return hex_dig
+        hashed_password = pwd_context.hash(password)
+        return hashed_password
 
     def create_user(self, username: str, password: str, first_name: str, last_name: str, email: str, balance: float = 0.0) -> User:
         user = self.session.query(User).filter_by(username=username).first()
@@ -60,24 +63,26 @@ class UserService:
         else:
             raise ValueError(f"User with id {user_id} not found")
 
-    def login(self, username: str, password: str) -> bool:
+    def login(self, email: str, password: str) -> dict:
         global current_user
-        user = self.session.query(User).filter_by(username=username).first()
+        user = self.session.query(User).filter_by(email=email).first()
         if user is None:
             raise ValueError("User doesn't exist")
-        hashed_password = self._hash_password(password)
-        if user.password == hashed_password:
+        if pwd_context.verify(password, user.password):
             current_user = user
             self.current_user = user
-            return True
+            access_token = create_access_token(user.email)
+            return {"access_token": access_token, "token_type": "Bearer"}
         else:
             raise ValueError("Wrong password. Try again")
 
     def handle_request(self, data: str, model) -> List:
         if self.current_user is None:
             raise ValueError("No user is currently logged in")
+
         prediction, _ = self.request_service.prediction(data, model)
         spent_sum = 0
+
         if self.balance_service.deduct_balance(user_id=self.current_user.id, amount=10):
             spent_sum += 10
             transaction_data = {
@@ -85,6 +90,8 @@ class UserService:
                 'prediction': prediction.to_dict(orient='records'),
                 'data': data
             }
+
+
             self.current_user.transaction_list.append(transaction_data)
             flag_modified(self.current_user, "transaction_list")
             self.session.commit()

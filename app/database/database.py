@@ -4,8 +4,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-dotenv_path = '/Users/denissergeich/service/pythonProject/mlservice/app/.env'
-
 load_dotenv()
 
 DB_HOST = os.getenv('DB_HOST')

@@ -1,6 +1,8 @@
 from prophet import Prophet
 import joblib
 from models.request import Request
+import os
+import matplotlib.pyplot as plt
 import pandas as pd
 
 
@@ -28,3 +30,5 @@ class RequestService:
         prediction = prophet_model.predict(future)
         prediction['ds'] = prediction['ds'].dt.strftime('%Y-%m-%d %H:%M:%S')
         return prediction, data
+
+

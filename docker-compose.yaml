@@ -70,7 +70,7 @@ services:
       - RABBITMQ_DEFAULT_VHOST=/
       - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit disk_free_limit 2147483648
     volumes:
-      - ./rabbitmq_data:/var/lib/rabbitmq
+      - rabbitmq_data:/var/lib/rabbitmq
     restart: on-failure
     networks:
       - backend
@@ -79,6 +79,24 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+
+  webui:
+    build:
+      context: .
+      dockerfile: ./webview/Dockerfile
+    ports:
+      - "8501:8501"
+    environment:
+      - API_BASE_URL=http://app:8083
+    volumes:
+      - ./webui:/webui
+    command: streamlit run webview/webui.py
+    depends_on:
+      - app
+      - rabbit-mq
+      - db
+    networks:
+      - backend
 
   db:
     image: postgres

@@ -114,3 +114,6 @@ rabbitmq_data/
 rabbitmq
 
 app/telegram_bot/config.py
+.DS_Store
+
+./webview/.env

@@ -2,7 +2,8 @@ from telebot import TeleBot, types
 from datetime import datetime
 from config import TOKEN, API_URL
 import requests
-4
+from worker.tasks import handle_request as celery_handle_request
+
 
 bot = TeleBot(TOKEN)
 API_URL = API_URL
@@ -69,7 +70,7 @@ def get_complete_register(message, username, password, email, first_name):
         "first_name": first_name,
         "last_name": last_name
     }
-    request = requests.post(url=f"{API_URL}/users/signin/", json=json_raw)
+    request = requests.post(url=f"{API_URL}/users/signup/", json=json_raw)
     if request.status_code == 200:
         bot.send_message(message.chat.id, "Вы успешно зарегистрировались!")
     else:
@@ -78,23 +79,23 @@ def get_complete_register(message, username, password, email, first_name):
 
 @bot.message_handler(func=lambda message: message.text == 'Войти в аккаунт')
 def login_message(message):
-    bot.send_message(message.chat.id, "Введите логин")
+    bot.send_message(message.chat.id, "Введите почту")
     bot.register_next_step_handler(message, get_username_login)
 
 
 def get_username_login(message):
-    username = message.text
+    email = message.text
     bot.send_message(message.chat.id, "Введите пароль")
-    bot.register_next_step_handler(message, complete_login, username)
+    bot.register_next_step_handler(message, complete_login, email)
 
 
-def complete_login(message, username):
+def complete_login(message, email):
     password = message.text
     json_raw = {
-        "username": username,
+        "email": email,
         "password": password
     }
-    request = requests.post(url=f"{API_URL}/users/signup/", json=json_raw)
+    request = requests.post(url=f"{API_URL}/users/signin/", json=json_raw)
     if request.status_code == 200:
         bot.send_message(message.chat.id, "Вы успешно вошли в систему!")
 

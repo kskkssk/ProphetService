@@ -1,10 +1,14 @@
-from fastapi import APIRouter, status, HTTPException, Depends
+from fastapi import APIRouter, status, HTTPException, Depends, Form
 from sqlalchemy.orm import Session
 from services.crud.user_service import UserService
 from services.crud.personal_service import PersonService
+from services.crud.request_service import RequestService
 from database.database import get_db
 from schemas.user import UserCreate, UserResponse, UserSignin
 from worker.tasks import handle_request as celery_handle_request
+from fastapi.security import OAuth2PasswordRequestForm
+from schemas.user import TokenResponse
+from fastapi.responses import FileResponse
 
 user_post_route = APIRouter(tags=['User'])
 
@@ -18,19 +22,25 @@ def get_person_service(user_service: UserService = Depends(get_user_service)) ->
     return PersonService(user_service.session, current_user)
 
 
-@user_post_route.post("/signin", response_model=UserResponse)
-async def signin(data: UserCreate, user_service: UserService = Depends(get_user_service)):
+def get_request_service(db: Session = Depends(get_db)) -> RequestService:
+    return RequestService(db)
+
+
+@user_post_route.post("/signup", response_model=UserResponse)
+async def signup(data: UserCreate, user_service: UserService = Depends(get_user_service)):
     if user_service.get_user_by_email(data.email) is not None:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail='User exists')
     user = user_service.create_user(username=data.username, password=data.password, first_name=data.first_name, last_name=data.last_name, email=data.email)
     return UserResponse.from_orm(user)
 
 
-@user_post_route.post("/signup", response_model=UserResponse)
-async def signup(data: UserSignin, user_service: UserService = Depends(get_user_service)):
-    if not user_service.login(username=data.username, password=data.password):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='User does not exist')
-    return UserResponse.from_orm(user_service.get_current_user())
+@user_post_route.post("/signin", response_model=TokenResponse)
+async def signin(form_data: OAuth2PasswordRequestForm = Depends(), user_service: UserService = Depends(get_user_service)):
+    try:
+        token_data = user_service.login(email=form_data.username, password=form_data.password)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
+    return token_data
 
 
 @user_post_route.post("/handle_request", response_model=dict)
