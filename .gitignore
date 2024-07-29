@@ -117,3 +117,5 @@ app/telegram_bot/config.py
 .DS_Store
 
 ./webview/.env
+./.env
+./app/.env
