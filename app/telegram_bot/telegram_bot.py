@@ -1,7 +1,9 @@
 from telebot import TeleBot, types
 import requests
 from worker.tasks import handle_request as celery_handle_request
+from worker.celery_config import app
 import os
+from celery.result import AsyncResult
 from dotenv import load_dotenv
 
 dotenv_path = '/.env'
@@ -9,9 +11,10 @@ dotenv_path = '/.env'
 load_dotenv()
 
 TOKEN = os.getenv('TOKEN')
-API_URL = os.getenv('API_URL')
+API_URL = os.getenv('API_URL_TG')
 
 bot = TeleBot(TOKEN)
+user_tokens = {}
 
 
 @bot.message_handler(commands=['start'])
@@ -96,12 +99,20 @@ def get_username_login(message):
 
 def complete_login(message, email):
     password = message.text
-    json_raw = {
-        "email": email,
-        "password": password
+    headers = {
+        'accept': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
     }
-    request = requests.post(url=f"{API_URL}/users/signin/", json=json_raw)
-    if request.status_code == 200:
+    data = {
+        'grant_type': 'password',
+        'username': email,
+        'password': password,
+    }
+    response = requests.post(f'{API_URL}/users/signin', headers=headers, data=data)
+    if response.status_code == 200:
+        access_token = response.json().get("access_token")
+        user_tokens[message.chat.id] = access_token
+
         bot.send_message(message.chat.id, "Вы успешно вошли в систему!")
 
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -115,10 +126,10 @@ def complete_login(message, email):
 
         bot.send_message(message.chat.id, "Выберите действие", reply_markup=markup)
 
-    elif request.status_code == 500:
+    elif response.status_code == 500:
         bot.send_message(message.chat.id, "Неправильный пользователь или пароль. Попробуйте еще раз.")
     else:
-        bot.send_message(message.chat.id, f"Ошибка входа: {request.json().get('detail', 'Ошибка входа')}")
+        bot.send_message(message.chat.id, f"Ошибка входа: {response.json().get('detail', 'Ошибка входа')}")
 
 
 @bot.message_handler(func=lambda message: message.text == "Пополнить баланс")
@@ -129,7 +140,16 @@ def add_balance(message):
 
 def add_money(message):
     amount = float(message.text)
-    request = requests.post(f"{API_URL}/balances/add_balance?amount={amount}")
+    token = user_tokens.get(message.chat.id)
+    if not token:
+        bot.send_message(message.chat.id, "Вы не авторизованы. Пожалуйста, войдите в аккаунт.")
+        return
+    headers = {"Authorization": f"Bearer {token}"}
+    request = requests.post(
+        f"{API_URL}/balances/add_balance",
+        headers=headers,
+        data={"amount": float(amount)}
+    )
     if request.status_code == 200:
         bot.send_message(message.chat.id, "Ваш баланс успешно пополнен!")
     elif request.status_code == 500:
@@ -156,6 +176,19 @@ def insert_data(message):
     bot.register_next_step_handler(message, handle_request)
 
 
+def format_prediction(predictions):
+    formatted_output = ""
+    for prediction in predictions['prediction']:
+        date = prediction['ds']
+        yhat = prediction['yhat']
+        yhat_lower = prediction['yhat_lower']
+        yhat_upper = prediction['yhat_upper']
+        formatted_output += f"Дата: {date}\n"
+        formatted_output += f"Прогноз: {yhat}\n"
+        formatted_output += f"Диапазон: [{yhat_lower}, {yhat_upper}]\n\n"
+    return formatted_output
+
+
 def handle_request(message):
     data = message.text
     response = requests.get(f"{API_URL}/users/current_user")
@@ -166,21 +199,9 @@ def handle_request(message):
         bot.send_message(message.chat.id, "Вы не авторизованы. Пожалуйста, войдите в аккаунт.")
         return None
 
-    celery_handle_request.apply_async(args=[data, 'prophet_model', current_user])
-    bot.send_message(message.chat.id, "Ваш запрос был отправлен на обработку. Вы получите уведомление о завершении.")
-
-
-def format_prediction(predictions):
-    formatted_output = ""
-    for prediction in predictions:
-        date = prediction.get('ds')
-        yhat = prediction.get('yhat')
-        yhat_lower = prediction.get('yhat_lower')
-        yhat_upper = prediction.get('yhat_upper')
-        formatted_output += f"Дата: {date}\n"
-        formatted_output += f"Прогноз: {yhat}\n"
-        formatted_output += f"Диапазон: [{yhat_lower}, {yhat_upper}]\n\n"
-    return formatted_output
+    task_id = celery_handle_request.apply_async(args=[data, 'prophet_model', current_user])
+    result = AsyncResult(task_id, app=app)
+    bot.send_message(message.chat.id, format_prediction(result.get()))
 
 
 @bot.message_handler(func=lambda message: message.text == "История запросов")

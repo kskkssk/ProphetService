@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import HTTPException
 from schemas.balance import BalanceResponse
 from fastapi import APIRouter, Depends
 from services.crud.personal_service import PersonService

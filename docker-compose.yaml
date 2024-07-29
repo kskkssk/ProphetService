@@ -103,6 +103,21 @@ services:
       timeout: 10s
       retries: 5
 
+  telegram-bot:
+    build:
+      context: .
+      dockerfile: ./app/telegram_bot/Dockerfile
+    env_file:
+        - ./.env
+    environment:
+      - PYTHONPATH=/app
+    networks:
+      - backend
+    command: [ "python", "telegram_bot/telegram_bot.py" ]
+    depends_on:
+      - app
+      - db
+
   webui:
     build:
       context: .
