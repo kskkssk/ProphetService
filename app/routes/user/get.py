@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from services.crud.user_service import UserService
 from services.crud.personal_service import PersonService
 from database.database import get_db
-from schemas.user import UserCreate, UserResponse, UserSignin
+from schemas.user import UserResponse
 from typing import List
 
 

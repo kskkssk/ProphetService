@@ -4,7 +4,6 @@ from services.crud.request_service import RequestService
 from services.crud.balance_service import BalanceService
 from typing import List, Optional
 from sqlalchemy.orm.attributes import flag_modified
-import hashlib
 from passlib.context import CryptContext
 from auth.jwt_handler import create_access_token
 
@@ -25,6 +24,7 @@ class UserService:
     def _hash_password(self, password: str):
         hashed_password = pwd_context.hash(password)
         return hashed_password
+
 
     def create_user(self, username: str, password: str, first_name: str, last_name: str, email: str, balance: float = 0.0) -> User:
         user = self.session.query(User).filter_by(username=username).first()

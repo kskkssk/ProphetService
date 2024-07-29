@@ -3,7 +3,6 @@ import streamlit as st
 from streamlit_cookies_manager import EncryptedCookieManager
 from dotenv import load_dotenv
 import requests
-import matplotlib.pyplot as plt
 from celery.result import AsyncResult
 from worker.tasks import handle_request as celery_handle_request
 from worker.celery_config import app
@@ -19,11 +18,17 @@ cookie_manager = EncryptedCookieManager(
 )
 
 
-def authenticate(username, password):
-    response = requests.post(
-        f"{api_base_url}/users/signin",
-        data={"username": username, "password": password}
-    )
+def authenticate(email, password):
+    headers = {
+        'accept': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
+    }
+    data = {
+        'grant_type': 'password',
+        'username': email,
+        'password': password,
+    }
+    response = requests.post(f'{api_base_url}/users/signin', headers=headers, data=data)
     if response.status_code == 200:
         return response.json().get("access_token")
     else:
@@ -31,16 +36,12 @@ def authenticate(username, password):
 
 
 def register_user(username, password, first_name, last_name, email):
-    response = requests.post(
-        f"{api_base_url}/users/signup",
-        json={
-            "username": username,
-            "password": password,
-            "first_name": first_name,
-            "last_name": last_name,
-            "email": email
-        }
-    )
+    response = requests.post(f'{api_base_url}/users/signup',
+                             json={"username": username,
+                                   "password": password,
+                                   "first_name": first_name,
+                                   "last_name": last_name,
+                                   "email": email})
     return response
 
 
@@ -137,7 +138,7 @@ def register_form():
         st.session_state["register_attempted"] = True
         response = register_user(username, password, first_name, last_name, email)
         if response.status_code == 200:
-            return authenticate(username, password)
+            return authenticate(email, password)
         else:
             st.error(f"Error: {response.text}")
     return None

@@ -1,12 +1,17 @@
 from telebot import TeleBot, types
-from datetime import datetime
-from config import TOKEN, API_URL
 import requests
 from worker.tasks import handle_request as celery_handle_request
+import os
+from dotenv import load_dotenv
 
+dotenv_path = '/.env'
+
+load_dotenv()
+
+TOKEN = os.getenv('TOKEN')
+API_URL = os.getenv('API_URL')
 
 bot = TeleBot(TOKEN)
-API_URL = API_URL
 
 
 @bot.message_handler(commands=['start'])
@@ -163,6 +168,7 @@ def handle_request(message):
 
     celery_handle_request.apply_async(args=[data, 'prophet_model', current_user])
     bot.send_message(message.chat.id, "Ваш запрос был отправлен на обработку. Вы получите уведомление о завершении.")
+
 
 def format_prediction(predictions):
     formatted_output = ""

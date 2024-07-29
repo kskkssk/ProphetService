@@ -1,5 +1,4 @@
 from worker.celery_config import app
-from services.crud.user_service import UserService
 from services.crud.personal_service import PersonService
 from database.database import get_db
 from models.user import User

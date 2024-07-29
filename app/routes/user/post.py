@@ -8,7 +8,6 @@ from schemas.user import UserCreate, UserResponse, UserSignin
 from worker.tasks import handle_request as celery_handle_request
 from fastapi.security import OAuth2PasswordRequestForm
 from schemas.user import TokenResponse
-from fastapi.responses import FileResponse
 
 user_post_route = APIRouter(tags=['User'])
 

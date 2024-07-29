@@ -19,5 +19,7 @@ streamlit<1.37.0
 matplotlib
 streamlit_cookies_manager
 python-dotenv
-
-
+requests-mock
+telemulator3
+jose
+pytest
