@@ -1,4 +1,3 @@
-# worker/celery_config.py
 from celery import Celery
 
 app = Celery('worker', broker='amqp://my_personal_user:my_personal_password@rabbitmq:5672//')

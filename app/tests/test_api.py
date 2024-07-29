@@ -1,7 +1,5 @@
 import logging
-import uuid
 from fastapi.testclient import TestClient
-import pytest
 
 logging.basicConfig(level=logging.DEBUG)
 

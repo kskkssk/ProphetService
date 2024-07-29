@@ -1,6 +1,7 @@
 from fastapi import Request
 from typing import Optional, List
 
+
 class LoginForm:
     def __init__(self, request: Request):
         self.request: Request = request

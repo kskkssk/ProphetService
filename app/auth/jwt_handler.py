@@ -5,7 +5,7 @@ from jose import jwt, JWTError
 import os
 from fastapi import HTTPException, status
 
-dotenv_path = '/Users/denissergeich/service/pythonProject/mlservice/app/.env'
+dotenv_path = '/.env'
 
 load_dotenv()
 

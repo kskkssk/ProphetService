@@ -20,11 +20,9 @@ class UserService:
         self.balance_service = BalanceService(session)
         self.request_service = RequestService(session)
 
-
     def _hash_password(self, password: str):
         hashed_password = pwd_context.hash(password)
         return hashed_password
-
 
     def create_user(self, username: str, password: str, first_name: str, last_name: str, email: str, balance: float = 0.0) -> User:
         user = self.session.query(User).filter_by(username=username).first()
@@ -90,7 +88,6 @@ class UserService:
                 'prediction': prediction.to_dict(orient='records'),
                 'data': data
             }
-
 
             self.current_user.transaction_list.append(transaction_data)
             flag_modified(self.current_user, "transaction_list")

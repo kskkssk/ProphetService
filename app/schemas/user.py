@@ -30,11 +30,11 @@ class UserSignin(BaseModel):
         orm_mode = True
         from_attributes = True
 
+
 class UserResponse(UserBase):
     transaction_list: List[dict]
 
     class Config:
-        orm_mode = True
         from_attributes = True
 
 
@@ -43,5 +43,4 @@ class TokenResponse(BaseModel):
     token_type: str
 
     class Config:
-        orm_mode = True
         from_attributes = True

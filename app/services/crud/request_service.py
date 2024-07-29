@@ -1,8 +1,5 @@
 from prophet import Prophet
 import joblib
-from models.request import Request
-import os
-import matplotlib.pyplot as plt
 import pandas as pd
 
 
