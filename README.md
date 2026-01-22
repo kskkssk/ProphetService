@@ -3,6 +3,7 @@
 Сервис написан на FastAPI, в докер образе собран Nginx, RabbitMQ для реализации многопоточности, написаны unit тесты
 
 **EN:**
+
 A service for forecasting time series for the next 5 days. The system is containerized using Docker and includes a Telegram bot and a Streamlit-based web interface. User registration and authentication are implemented, along with balance management features such as balance checks, top-ups, and automated billing per model request.
 
 Time series forecasting is performed using the Prophet model.
